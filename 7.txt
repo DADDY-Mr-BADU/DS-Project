@@ -1,0 +1,146 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct node {
+  char song[25];
+  struct node *next;
+};
+
+typedef struct node *NODEPTR;
+
+NODEPTR getnode() {
+  NODEPTR r = (NODEPTR)malloc(sizeof(struct node));
+  if (r == NULL) {
+    printf("Allocation failed\n");
+    exit(1);
+  }
+  return r;
+}
+
+NODEPTR create(NODEPTR list, char song[]) {
+  NODEPTR p = getnode();
+  strcpy(p->song, song);
+  p->next = NULL;
+  if (list == NULL)
+    list = p;
+  else {
+    NODEPTR q;
+    for (q = list; q->next != NULL; q = q->next)
+      ;
+    q->next = p;
+  }
+  return list;
+}
+
+void play(NODEPTR list, int fromBeginning) {
+  if (list == NULL) {
+    printf("Empty playlist\n");
+    return;
+  }
+
+  NODEPTR p;
+  if (fromBeginning) {
+    p = list;
+  } else {
+    for (p = list; p->next != NULL; p = p->next)
+      ;
+  }
+
+  printf("\nPlaying %s\n", p->song);
+}
+
+NODEPTR deleteSong(NODEPTR list, int fromBeginning) {
+  if (list == NULL) {
+    printf("Empty playlist\n");
+    return list;
+  }
+
+  NODEPTR p = list;
+  if (fromBeginning) {
+    printf("\nSong deleted = %s", p->song);
+    list = p->next;
+    free(p);
+  } else {
+    NODEPTR q = NULL;
+    while (p->next != NULL) {
+      q = p;
+      p = p->next;
+    }
+    if (q != NULL) {
+      q->next = p->next;
+    }
+    printf("\nSong deleted = %s", p->song);
+    free(p);
+  }
+  return list;
+}
+
+void display(NODEPTR list) {
+  if (list == NULL) {
+    printf("Empty list\n");
+    return;
+  }
+
+  NODEPTR p;
+  printf("The playlist contains:\n");
+  for (p = list; p != NULL; p = p->next)
+    printf("%s->", p->song);
+  printf("\n");
+}
+
+int main() {
+  NODEPTR list = NULL;
+  int choice;
+  char cont;
+  char song[25];
+
+  do {
+    printf("1->CREATE PLAYLIST 2->PLAY FROM BEGINNING 3->PLAY FROM END "
+           "4->DELETE FROM BEGINNING 5->DELETE FROM END 6->DISPLAY 7->QUIT\n");
+    printf("Enter your choice:");
+    scanf("%d", &choice);
+
+    switch (choice) {
+      case 1:
+        do {
+          printf("Enter a song:");
+          scanf("%s", song);
+          list = create(list, song);
+          printf("Do you want to enter another song[Y/N]:");
+          scanf(" %c", &cont);
+        } while (cont == 'Y' || cont == 'y');
+        break;
+
+      case 2:
+        play(list, 1);
+        break;
+
+      case 3:
+        play(list, 0);
+        break;
+
+      case 4:
+        list = deleteSong(list, 1);
+        break;
+
+      case 5:
+        list = deleteSong(list, 0);
+        break;
+
+      case 6:
+        display(list);
+        break;
+
+      case 7:
+        exit(0);
+
+      default:
+        printf("\nNo such option\n");
+        break;
+    }
+
+  } while (choice != 7);
+
+  return 0;
+}
